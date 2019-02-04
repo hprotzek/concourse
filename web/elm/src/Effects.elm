@@ -101,8 +101,8 @@ type Effect
     | RenderPipeline Json.Encode.Value Json.Encode.Value
     | RedirectToLogin
     | NavigateTo String
-    | SetTitle String
     | ModifyUrl String
+    | SetTitle String
     | DoPinVersion Concourse.VersionedResourceIdentifier Concourse.CSRFToken
     | DoUnpinVersion Concourse.ResourceIdentifier Concourse.CSRFToken
     | DoToggleVersion VersionToggleAction VersionId Concourse.CSRFToken
@@ -185,8 +185,11 @@ runEffect effect =
         RedirectToLogin ->
             requestLoginRedirect ""
 
-        NavigateTo newUrl ->
-            Navigation.newUrl newUrl
+        NavigateTo url ->
+            Navigation.newUrl url
+
+        ModifyUrl url ->
+            Navigation.modifyUrl url
 
         ResetPipelineFocus ->
             resetPipelineFocus ()
@@ -218,9 +221,6 @@ runEffect effect =
 
         SendTokenToFly authToken flyPort ->
             sendTokenToFly authToken flyPort
-
-        ModifyUrl url ->
-            Navigation.modifyUrl url
 
         SendTogglePipelineRequest { pipeline, csrfToken } ->
             togglePipelinePaused { pipeline = pipeline, csrfToken = csrfToken }
