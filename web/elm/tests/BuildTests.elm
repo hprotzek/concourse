@@ -829,12 +829,7 @@ all =
                                     ]
                             , Tuple.first
                                 >> Build.subscriptions
-                                >> List.member
-                                    (Subscription.FromEventSource
-                                        ( "/api/v1/builds/1/events"
-                                        , [ "end", "event" ]
-                                        )
-                                    )
+                                >> List.member Subscription.FromEventSource
                                 >> Expect.true
                                     "why aren't we listening for build events!?"
                             ]

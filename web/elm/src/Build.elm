@@ -116,6 +116,7 @@ init flags page =
                 , highlight = flags.highlight
                 , hoveredElement = Nothing
                 , hoveredCounter = 0
+                , eventStream = Nothing
                 }
     in
     ( model, effects ++ [ GetCurrentTime ] )
@@ -130,13 +131,14 @@ subscriptions model =
     , Conditionally
         (getScrollBehavior model /= NoScroll)
         (OnAnimationFrame ScrollDown)
-    , model.currentBuild
-        |> RemoteData.toMaybe
-        |> Maybe.andThen .output
-        |> Maybe.andThen .events
-        |> Maybe.map Build.Output.subscribeToEvents
-        |> WhenPresent
     ]
+        ++ (case model.eventStream of
+                Just buildId ->
+                    [ Subscription.FromEventSource ]
+
+                Nothing ->
+                    []
+           )
 
 
 changeToBuild : Page -> Model -> ( Model, List Effect )
@@ -244,11 +246,15 @@ handleCallback action model =
                         (Build.Output.planAndResourcesFetched buildId result)
                         model
             in
-            ( newModel
+            ( { newModel | eventStream = Just buildId }
             , effects
                 ++ [ Effects.OpenBuildEventStream
-                        ("/api/v1/builds/" ++ toString buildId ++ "/events")
-                        [ "end", "event" ]
+                        { url =
+                            "/api/v1/builds/"
+                                ++ toString buildId
+                                ++ "/events"
+                        , eventTypes = [ "end", "event" ]
+                        }
                    ]
             )
 
