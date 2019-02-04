@@ -66,6 +66,9 @@ port saveToken : String -> Cmd msg
 port requestLoginRedirect : String -> Cmd msg
 
 
+port openBuildEventStream : ( String, List String ) -> Cmd msg
+
+
 type LayoutDispatch
     = TopBar Int
     | SubPage Int
@@ -122,6 +125,7 @@ type Effect
     | SetFavIcon (Maybe Concourse.BuildStatus)
     | SaveToken String
     | LoadToken
+    | OpenBuildEventStream String (List String)
 
 
 type ScrollDirection
@@ -290,6 +294,9 @@ runEffect effect =
 
         LoadToken ->
             loadToken ()
+
+        OpenBuildEventStream url eventTypes ->
+            openBuildEventStream ( url, eventTypes )
 
 
 fetchJobBuilds : Concourse.JobIdentifier -> Maybe Concourse.Pagination.Page -> Cmd Callback
