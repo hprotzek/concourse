@@ -60,6 +60,7 @@ import Pinned exposing (ResourcePinState(..), VersionPinState(..))
 import Resource.Models as Models exposing (Model)
 import Resource.Msgs exposing (Msg(..))
 import Resource.Styles
+import Resource.Text
 import Routes
 import Spinner
 import StrictEvents
@@ -74,6 +75,7 @@ type alias Flags =
     { teamName : String
     , pipelineName : String
     , resourceName : String
+    , resourceType : String
     , paging : Maybe Concourse.Pagination.Page
     , csrfToken : String
     }
@@ -95,6 +97,7 @@ init flags =
                 , teamName = flags.teamName
                 , pipelineName = flags.pipelineName
                 , name = flags.resourceName
+                , type_ = flags.resourceType
                 , checkStatus = Models.CheckingSuccessfully
                 , checkError = ""
                 , checkSetupError = ""
@@ -698,9 +701,9 @@ header model =
                 , Css.displayFlex
                 , Css.alignItems Css.center
                 , Css.justifyContent Css.center
-                ]
+                ], id "resource-name"
             ]
-            [ Html.text model.name ]
+            [ Html.text <| Resource.Text.resourceLabel model ]
         , Html.div
             [ css
                 [ Css.displayFlex

@@ -51,6 +51,11 @@ resourceName =
     "some-resource"
 
 
+resourceType : String
+resourceType =
+    "some-type"
+
+
 versionID : Models.VersionId
 versionID =
     { teamName = teamName
@@ -135,7 +140,16 @@ badResponse =
 all : Test
 all =
     describe "resource page"
-        [ describe "when logging out" <|
+        [ describe "on initial load" <|
+            [ test "the resource name and type should be displayed" <|
+                \_ ->
+                    init
+                        |> givenResourceIsNotPinned
+                        |> queryView
+                        |> Query.find [ id "resource-name" ]
+                        |> Query.has [ text (resourceName ++ " (" ++ resourceType ++ ")") ]
+            ]
+        , describe "when logging out" <|
             let
                 loggingOut : () -> ( Models.Model, List Effects.Effect )
                 loggingOut _ =
@@ -2055,6 +2069,7 @@ all =
                                     { teamName = teamName
                                     , pipelineName = pipelineName
                                     , name = resourceName
+                                    , type_ = resourceType
                                     , failingToCheck = True
                                     , checkError = "some error"
                                     , checkSetupError = ""
@@ -2087,6 +2102,7 @@ init =
         { teamName = teamName
         , pipelineName = pipelineName
         , resourceName = resourceName
+        , resourceType = resourceType
         , paging = Nothing
         , csrfToken = "csrf_token"
         }
@@ -2101,6 +2117,7 @@ givenResourcePinnedStatically =
                 { teamName = teamName
                 , pipelineName = pipelineName
                 , name = resourceName
+                , type_ = resourceType
                 , failingToCheck = False
                 , checkError = ""
                 , checkSetupError = ""
@@ -2121,6 +2138,7 @@ givenResourcePinnedDynamically =
                 { teamName = teamName
                 , pipelineName = pipelineName
                 , name = resourceName
+                , type_ = resourceType
                 , failingToCheck = False
                 , checkError = ""
                 , checkSetupError = ""
@@ -2140,6 +2158,7 @@ givenResourcePinnedWithComment =
             Ok
                 { teamName = teamName
                 , pipelineName = pipelineName
+                , type_ = resourceType
                 , name = resourceName
                 , failingToCheck = False
                 , checkError = ""
@@ -2162,6 +2181,7 @@ givenResourceIsNotPinned =
                 { teamName = teamName
                 , pipelineName = pipelineName
                 , name = resourceName
+                , type_ = resourceType
                 , failingToCheck = False
                 , checkError = ""
                 , checkSetupError = ""
